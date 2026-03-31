@@ -94,7 +94,7 @@ public class ItemEquipPatch
         }
 
         float reqStrength = req.StrengthRequired * Plugin.PluginConfig.RequiredStrengthMultiplier.Value;
-        return stats.Strength > reqStrength;
+        return stats.Strength >= reqStrength;
     }
 
     private static bool ShouldIgnoreItem(ItemTemplate item)
