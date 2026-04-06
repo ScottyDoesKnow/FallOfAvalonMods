@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Mod.props"/>
+  <PropertyGroup>
+    <AssemblyName>BowAimSensitivity</AssemblyName>
+    <Product>BowAimSensitivity</Product>
+    <Version>1.0.0</Version>
+    <RootNamespace>BowAimSensitivity</RootNamespace>
+  </PropertyGroup>
+</Project>
