@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Mod.props"/>
+  <PropertyGroup>
+    <AssemblyName>QuickArmorSets</AssemblyName>
+    <Product>QuickArmorSets</Product>
+    <Version>1.0.0</Version>
+    <RootNamespace>QuickArmorSets</RootNamespace>
+  </PropertyGroup>
+</Project>
