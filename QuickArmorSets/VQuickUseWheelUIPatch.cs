@@ -77,7 +77,7 @@ public class VQuickUseWheelUIPatch
 
             int index = 0;
             List<VCQuickUseAction> toDestroy = []; // Delay destroy to keep defaultItem around
-            Sprite slotActiveSprite = null;
+            List<VCQuickArmorSet> newItems = [];
             foreach (Transform child in newWheel)
             {
                 VCQuickUseAction oldAction = child.GetComponent<VCQuickUseAction>();
@@ -148,12 +148,14 @@ public class VQuickUseWheelUIPatch
                     continue;
                 }
 
-                // TODO doesn't work
-                /*if (newItem.IsSelected)
-                {
-                    if (slotActiveSprite == null)
-                        slotActiveSprite = Resources.FindObjectsOfTypeAll<Sprite>().FirstOrDefault(s => s.name == "slot_active");
+                newItems.Add(newItem);
+            }
 
+            // Delay to not mess with defaultItem
+            foreach (VCQuickArmorSet newItem in newItems)
+                if (newItem.IsSelected)
+                {
+                    Sprite slotActiveSprite = Resources.FindObjectsOfTypeAll<Sprite>().FirstOrDefault(s => s.name == "slot_active");
                     if (slotActiveSprite == null)
                         Plugin.Log?.LogError($"{nameof(VQuickUseWheelUIPatch)}.{nameof(OnInitializePostfix)} | {nameof(slotActiveSprite)} is null.");
                     else
@@ -164,11 +166,10 @@ public class VQuickUseWheelUIPatch
                         else
                         {
                             slotImage.sprite = slotActiveSprite;
-                            slotImage.SetAllDirty(); // TODO
+                            slotImage.color = Color.white;
                         }
                     }
-                }*/
-            }
+                }
 
             foreach (VCQuickUseAction oldAction in toDestroy)
                 UnityEngine.Object.DestroyImmediate(oldAction); // Immediate to get it out of hierarchy for logging
@@ -273,7 +274,11 @@ public class VQuickUseWheelUIPatch
             switch (component)
             {
                 case Image image:
-                    spriteName = image.sprite?.name ?? "NULL";
+                    if (image.sprite != null)
+                        spriteName = $"{image.sprite.name} [{image.color.r}, {image.color.g}, {image.color.b}, {image.color.a}]";
+                    else
+                        spriteName = "NULL";
+
                     if (!image.enabled)
                         disabled = true;
                     break;
