@@ -9,6 +9,15 @@ namespace QuickArmorSets
 {
     public class VCQuickArmorSet : VCQuickItemBase
     {
+        public static bool HasAnyArmorSets => HeroItems.Elements<HeroArmorSet>().Any(x => GetItems(x).Any());
+
+        private static IEnumerable<Item> GetItems(HeroArmorSet armorSet)
+        {
+            if(armorSet == null)
+                return [];
+            return EquipmentSlotTypes.Select(x => armorSet?.GetItem(x)).Where(x => x != null);
+        }
+
         private static readonly EquipmentSlotType[] EquipmentSlotTypes = [
             EquipmentSlotType.Helmet,
             EquipmentSlotType.Cuirass,
@@ -41,7 +50,7 @@ namespace QuickArmorSets
         {
             get
             {
-                List<string> names = GetItems().Select(x => x.DisplayName).ToList();
+                List<string> names = GetItems(ArmorSet).Select(x => x.DisplayName).ToList();
                 return names.Any() ? string.Join("\r\n", names) : string.Empty;
             }
         }
@@ -61,9 +70,7 @@ namespace QuickArmorSets
             helper.quickAction = this;
         }
 
-        public override Item RetrieveItem() => GetItems().FirstOrDefault();
-
-        private IEnumerable<Item> GetItems() => EquipmentSlotTypes.Select(x => ArmorSet?.GetItem(x)).Where(x => x != null);
+        public override Item RetrieveItem() => GetItems(ArmorSet).FirstOrDefault();
 
         public override void OnShow()
         {

@@ -29,6 +29,12 @@ public class VQuickUseWheelUIPatch
         {
             Plugin.Log?.LogDebug($"{nameof(VQuickUseWheelUIPatch)}.{nameof(OnInitializePostfix)} | Start");
 
+            if (!VCQuickArmorSet.HasAnyArmorSets)
+            {
+                Plugin.Log?.LogDebug($"{nameof(VQuickUseWheelUIPatch)}.{nameof(OnInitializePostfix)} | No armor sets found, returning early.");
+                return;
+            }
+
             Transform oldWheel = __instance.transform.Find(QuickUseActionsName);
             if (oldWheel == null)
             {
@@ -53,8 +59,6 @@ public class VQuickUseWheelUIPatch
             newWheelRect.localScale = scale;
 
 #if DEBUG
-            foreach (Transform child in newWheel)
-                Plugin.Log?.LogInfo($"Start - {child.name} | Components: {string.Join(", ", Array.ConvertAll(child.GetComponents<Component>(), c => c.GetType().Name))}");
             LogHierarchy(newWheel, $"Hierarchy of {nameof(newWheel)} at start.");
 #endif
 
@@ -175,8 +179,6 @@ public class VQuickUseWheelUIPatch
                 UnityEngine.Object.DestroyImmediate(oldAction); // Immediate to get it out of hierarchy for logging
 
 #if DEBUG
-            foreach (Transform child in newWheel)
-                Plugin.Log?.LogInfo($"End - {child.name} | Components: {string.Join(", ", Array.ConvertAll(child.GetComponents<Component>(), c => c.GetType().Name))}");
             __instance.StartCoroutine(LogHierarchyDelayed(newWheel, $"Hierarchy of {nameof(newWheel)} at end."));
 #endif
 
@@ -185,7 +187,7 @@ public class VQuickUseWheelUIPatch
         catch (Exception ex)
         {
             Plugin.Log?.LogError($"{nameof(VQuickUseWheelUIPatch)}.{nameof(OnInitializePostfix)} | Error: {ex}");
-            Debug.LogError($"{PluginConsts.PLUGIN_NAME}.{nameof(VQuickUseWheelUIPatch)} error: {ex}");
+            Debug.LogError($"{PluginConsts.PLUGIN_NAME}.{nameof(VQuickUseWheelUIPatch)}.{nameof(OnInitializePostfix)} error: {ex}");
         }
     }
 
