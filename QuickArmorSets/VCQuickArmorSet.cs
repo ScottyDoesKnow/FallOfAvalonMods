@@ -15,10 +15,10 @@ namespace QuickArmorSets
         {
             if(armorSet == null)
                 return [];
-            return EquipmentSlotTypes.Select(x => armorSet?.GetItem(x)).Where(x => x != null);
+            return ArmorSlotTypes.Select(x => armorSet?.GetItem(x)).Where(x => x != null);
         }
 
-        private static readonly EquipmentSlotType[] EquipmentSlotTypes = [
+        internal static readonly EquipmentSlotType[] ArmorSlotTypes = [
             EquipmentSlotType.Helmet,
             EquipmentSlotType.Cuirass,
             EquipmentSlotType.Gauntlets,
