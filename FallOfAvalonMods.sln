@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BowAimSensitivity", "BowAim
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickArmorSets", "QuickArmorSets\QuickArmorSets.csproj", "{604EFAF3-AC97-43EA-AA46-DB92C5845376}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LootNewItemMarker", "LootNewItemMarker\LootNewItemMarker.csproj", "{CD1B3828-9CFF-4DBD-A22E-A7CD3925B7DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,10 @@ Global
 		{604EFAF3-AC97-43EA-AA46-DB92C5845376}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{604EFAF3-AC97-43EA-AA46-DB92C5845376}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{604EFAF3-AC97-43EA-AA46-DB92C5845376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD1B3828-9CFF-4DBD-A22E-A7CD3925B7DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD1B3828-9CFF-4DBD-A22E-A7CD3925B7DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD1B3828-9CFF-4DBD-A22E-A7CD3925B7DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD1B3828-9CFF-4DBD-A22E-A7CD3925B7DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
