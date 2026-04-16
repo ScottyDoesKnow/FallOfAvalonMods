@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Mod.props" />
+  <PropertyGroup>
+    <AssemblyName>LootNewItemMarker</AssemblyName>
+    <Product>LootPromptNewItemMarker</Product>
+    <Version>1.0.0</Version>
+    <RootNamespace>LootNewItemMarker</RootNamespace>
+  </PropertyGroup>
+</Project>
