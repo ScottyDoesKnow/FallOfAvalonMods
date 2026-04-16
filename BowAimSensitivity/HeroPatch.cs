@@ -13,14 +13,11 @@ public class HeroPatch
     [HarmonyPostfix]
     public static void OnFullyInitializedPostfix()
     {
-        try
-        {
-            Plugin plugin = Chainloader.ManagerObject.GetComponent<Plugin>();
-            plugin?.OnHeroFullyInitialized();
-        }
+        try { Chainloader.ManagerObject.GetComponent<Plugin>()?.OnHeroFullyInitialized(); }
         catch (Exception ex)
         {
-            Debug.LogError($"{PluginConsts.PLUGIN_NAME}.{nameof(HeroPatch)} error: {ex}");
+            Plugin.LogError($"{nameof(HeroPatch)}.{nameof(OnFullyInitializedPostfix)} | Error: {ex}");
+            Debug.LogError($"{PluginConsts.PLUGIN_NAME}.{nameof(HeroPatch)}.{nameof(OnFullyInitializedPostfix)} error: {ex}");
         }
     }
 }

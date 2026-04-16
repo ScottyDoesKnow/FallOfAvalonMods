@@ -18,14 +18,31 @@ namespace BowAimSensitivity;
 [BepInPlugin(PluginConsts.PLUGIN_GUID, PluginConsts.PLUGIN_NAME, PluginConsts.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin, IListenerOwner
 {
-    private const string SensitivityFieldName = "_sensitivity";
-    public static readonly (string Id, string Name) ExtraZoomTalentInfo = ("482b26f3ee7b25d4a9d635ef1b195a1d", "Eagle Eye");
-    public static readonly (string Id, string Name) SlowTimeTalentInfo = ("79973209408a28440a0e3757ab058059", "Unnatural Focus");
+    #region Logging
 
-    internal static ManualLogSource Log;
+    private static ManualLogSource Log;
+
+    internal static void LogDebug(object data)
+    {
+#if DEBUG
+        Log?.LogInfo(data);
+#else
+        Log?.LogDebug(data);
+#endif
+    }
+
+    internal static void LogInfo(object data) => Log?.LogInfo(data);
+
+    internal static void LogWarning(object data) => Log?.LogWarning(data);
+
+    internal static void LogError(object data) => Log?.LogError(data);
+
+    #endregion
+
+    internal static readonly (string Id, string Name) ExtraZoomTalentInfo = ("482b26f3ee7b25d4a9d635ef1b195a1d", "Eagle Eye");
+    internal static readonly (string Id, string Name) SlowTimeTalentInfo = ("79973209408a28440a0e3757ab058059", "Unnatural Focus");
+
     internal static PluginConfig PluginConfig;
-
-    private static FieldInfo SensitivityField;
 
     public Harmony HarmonyInstance { get; set; }
 
@@ -45,32 +62,32 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
     public void Awake()
     {
         Log = Logger;
-        Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loading...");
+        LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loading...");
 
-        PluginConfig = new PluginConfig(Config);
-        _zoomSensitivityFactor = PluginConfig.ZoomSensitivityFactor.Value;
-        _extraZoomSensitivityFactor = PluginConfig.ExtraZoomSensitivityFactor.Value;
-        _slowTimeSensitivityFactor = PluginConfig.SlowTimeSensitivityFactor.Value;
-
-        Log.LogDebug($"{nameof(Awake)} | {nameof(_zoomSensitivityFactor)}: {_zoomSensitivityFactor}," +
-            $" {nameof(_extraZoomSensitivityFactor)}: {_extraZoomSensitivityFactor}," +
-            $" {nameof(_slowTimeSensitivityFactor)}: {_slowTimeSensitivityFactor}");
-
-        HarmonyInstance = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
-
-        SensitivityField = AccessTools.Field(typeof(HeroCamera), SensitivityFieldName);
-        if (SensitivityField is null)
+        try
         {
-            Log.LogError($"{nameof(Awake)} | Couldn't find '{SensitivityFieldName}' field.");
-            return;
-        }
+            PluginConfig = new PluginConfig(Config);
+            _zoomSensitivityFactor = PluginConfig.ZoomSensitivityFactor.Value;
+            _extraZoomSensitivityFactor = PluginConfig.ExtraZoomSensitivityFactor.Value;
+            _slowTimeSensitivityFactor = PluginConfig.SlowTimeSensitivityFactor.Value;
 
-        Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loaded.");
+            LogDebug($"{nameof(Awake)} | {nameof(_zoomSensitivityFactor)}: {_zoomSensitivityFactor}," +
+                $" {nameof(_extraZoomSensitivityFactor)}: {_extraZoomSensitivityFactor}," +
+                $" {nameof(_slowTimeSensitivityFactor)}: {_slowTimeSensitivityFactor}");
+
+            HarmonyInstance = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
+
+            LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loaded.");
+        }
+        catch (Exception ex)
+        {
+            LogError($"Plugin {PluginConsts.PLUGIN_GUID} failed to load with error: {ex.Message}");
+        }
     }
 
     private IEnumerator Start()
     {
-        yield return new WaitUntil(() => World.EventSystem is not null);
+        yield return new WaitUntil(() => World.EventSystem != null);
 
         World.EventSystem.ListenTo(EventSelector.AnySource, Talent.Events.TalentChanged, this, OnTalentChanged);
 
@@ -94,9 +111,9 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
             _isZoomed = false;
             _isDrawn = false;
 
-            if (Hero.Current is null)
+            if (Hero.Current == null)
             {
-                Log.LogError($"{nameof(OnHeroFullyInitialized)} | {nameof(Hero)}.{nameof(Hero.Current)} is null.");
+                LogWarning($"{nameof(OnHeroFullyInitialized)} | Failed to initialize because {nameof(Hero)}.{nameof(Hero.Current)} is null.");
                 return;
             }
 
@@ -108,11 +125,11 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
 
             _initialized = true;
 
-            Log.LogDebug($"{nameof(OnHeroFullyInitialized)} | State initialized/reset.");
+            LogDebug($"{nameof(OnHeroFullyInitialized)} | State initialized/reset.");
         }
         catch (Exception ex)
         {
-            Log.LogError($"{nameof(OnHeroFullyInitialized)} | Error: {ex.Message}");
+            LogError($"{nameof(OnHeroFullyInitialized)} | Error: {ex.Message}");
         }
     }
 
@@ -139,9 +156,9 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
         talent = hero.Talents.BaseTalentTables.SelectMany(x => x.talents)
             .FirstOrDefault(x => IsTalent(x, talentInfo));
 
-        if (talent is null)
+        if (talent == null)
         {
-            Log.LogError($"{methodName} | Couldn't find '{talentInfo.Name}' skill.");
+            LogError($"{methodName} | Couldn't find '{talentInfo.Name}' skill.");
             return false;
         }
 
@@ -158,17 +175,17 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
             if (IsTalent(talent, ExtraZoomTalentInfo))
             {
                 _hasExtraZoom = talent.Level > 0;
-                Log.LogDebug($"{nameof(OnTalentChanged)} | {nameof(_hasExtraZoom)} = {_hasExtraZoom}");
+                LogDebug($"{nameof(OnTalentChanged)} | {nameof(_hasExtraZoom)} = {_hasExtraZoom}");
             }
             else if (IsTalent(talent, SlowTimeTalentInfo))
             {
                 _hasSlowTime = talent.Level > 0;
-                Log.LogDebug($"{nameof(OnTalentChanged)} | {nameof(_hasSlowTime)} = {_hasSlowTime}");
+                LogDebug($"{nameof(OnTalentChanged)} | {nameof(_hasSlowTime)} = {_hasSlowTime}");
             }
         }
         catch (Exception ex)
         {
-            Log.LogError($"{nameof(OnTalentChanged)} | Error: {ex.Message}");
+            LogError($"{nameof(OnTalentChanged)} | Error: {ex.Message}");
         }
     }
 
@@ -182,22 +199,22 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
             if (!_initialized)
                 return;
 
-            Log.LogDebug($"{nameof(OnBowZoomStart)} | Start");
+            LogDebug($"{nameof(OnBowZoomStart)} | Start");
 
             if (!CheckCharacterAndSensitivity(character, true, out HeroCamera camera, nameof(OnBowZoomStart)))
             {
-                Log.LogDebug($"{nameof(OnBowZoomStart)} | Returned early.");
+                LogDebug($"{nameof(OnBowZoomStart)} | Returned early.");
                 return;
             }
 
             _isZoomed = true;
             UpdateSensitivity(camera, nameof(OnBowZoomStart));
 
-            Log.LogDebug($"{nameof(OnBowZoomStart)} | End");
+            LogDebug($"{nameof(OnBowZoomStart)} | End");
         }
         catch (Exception ex)
         {
-            Log.LogError($"{nameof(OnBowZoomStart)} | Error: {ex.Message}");
+            LogError($"{nameof(OnBowZoomStart)} | Error: {ex.Message}");
         }
     }
 
@@ -208,22 +225,22 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
             if (!_initialized)
                 return;
 
-            Log.LogDebug($"{nameof(OnBowZoomEnd)} | Start");
+            LogDebug($"{nameof(OnBowZoomEnd)} | Start");
 
             if (!CheckCharacterAndSensitivity(character, false, out HeroCamera camera, nameof(OnBowZoomEnd)))
             {
-                Log.LogDebug($"{nameof(OnBowZoomEnd)} | Returned early.");
+                LogDebug($"{nameof(OnBowZoomEnd)} | Returned early.");
                 return;
             }
 
             _isZoomed = false;
             UpdateSensitivity(camera, nameof(OnBowZoomEnd));
 
-            Log.LogDebug($"{nameof(OnBowZoomEnd)} | End");
+            LogDebug($"{nameof(OnBowZoomEnd)} | End");
         }
         catch (Exception ex)
         {
-            Log.LogError($"{nameof(OnBowZoomEnd)} | Error: {ex.Message}");
+            LogError($"{nameof(OnBowZoomEnd)} | Error: {ex.Message}");
         }
     }
 
@@ -234,11 +251,11 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
             if (!_initialized)
                 return;
 
-            Log.LogDebug($"{nameof(OnBowDrawStart)} | Start");
+            LogDebug($"{nameof(OnBowDrawStart)} | Start");
 
             if (!CheckCharacterAndSensitivity(character, true, out HeroCamera camera, nameof(OnBowDrawStart)))
             {
-                Log.LogDebug($"{nameof(OnBowDrawStart)} | Returned early.");
+                LogDebug($"{nameof(OnBowDrawStart)} | Returned early.");
                 return;
             }
 
@@ -249,11 +266,11 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
                     UpdateSensitivity(camera, nameof(OnBowDrawStart));
             }
 
-            Log.LogDebug($"{nameof(OnBowDrawStart)} | End");
+            LogDebug($"{nameof(OnBowDrawStart)} | End");
         }
         catch (Exception ex)
         {
-            Log.LogError($"{nameof(OnBowDrawStart)} | Error: {ex.Message}");
+            LogError($"{nameof(OnBowDrawStart)} | Error: {ex.Message}");
         }
     }
 
@@ -264,11 +281,11 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
             if (!_initialized)
                 return;
 
-            Log.LogDebug($"{nameof(OnBowDrawEnd)} | Start");
+            LogDebug($"{nameof(OnBowDrawEnd)} | Start");
 
             if (!CheckCharacterAndSensitivity(character, false, out HeroCamera camera, nameof(OnBowDrawEnd)))
             {
-                Log.LogDebug($"{nameof(OnBowDrawEnd)} | Returned early.");
+                LogDebug($"{nameof(OnBowDrawEnd)} | Returned early.");
                 return;
             }
 
@@ -279,14 +296,15 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
                     UpdateSensitivity(camera, nameof(OnBowDrawEnd));
             }
 
-            Log.LogDebug($"{nameof(OnBowDrawEnd)} | End");
+            LogDebug($"{nameof(OnBowDrawEnd)} | End");
         }
         catch (Exception ex)
         {
-            Log.LogError($"{nameof(OnBowDrawEnd)} | Error: {ex.Message}");
+            LogError($"{nameof(OnBowDrawEnd)} | Error: {ex.Message}");
         }
     }
 
+    // LogDebug instead of LogWarning because the game tends to call end events at random times to clear states
     private bool CheckCharacterAndSensitivity(ICharacter character, bool isStartEvent, out HeroCamera camera, string methodName)
     {
         camera = null;
@@ -296,26 +314,25 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
 
         if (hero != Hero.Current)
         {
-            Log.LogError($"{methodName} | {nameof(hero)} is not equal to {nameof(Hero)}.{nameof(Hero.Current)}");
+            LogDebug($"{methodName} | {nameof(hero)} is not equal to {nameof(Hero)}.{nameof(Hero.Current)}");
             return false;
         }
 
         camera = hero.VHeroController?.HeroCamera;
-        if (camera is null)
+        if (camera == null)
         {
-            Log.LogError($"{methodName} | {nameof(HeroCamera)} is null.");
+            LogDebug($"{methodName} | {nameof(HeroCamera)} is null.");
             return false;
         }
 
-        if (isStartEvent && _originalSensitivity is null)
+        if (isStartEvent && _originalSensitivity == null)
         {
-            _originalSensitivity = (float)SensitivityField.GetValue(camera);
-            Log.LogDebug($"{methodName} | {nameof(_originalSensitivity)} = {_originalSensitivity}");
+            _originalSensitivity = camera._sensitivity;
+            LogDebug($"{methodName} | {nameof(_originalSensitivity)} = {_originalSensitivity}");
         }
-        else if (_originalSensitivity is null)
+        else if (_originalSensitivity == null)
         {
-            // Not logged as an error because the game sometimes calls end events to clear states
-            Log.LogDebug($"{methodName} | {nameof(_originalSensitivity)} hasn't been set.");
+            LogDebug($"{methodName} | {nameof(_originalSensitivity)} hasn't been set.");
             return false;
         }
 
@@ -337,9 +354,9 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
                 newSensitivity *= _slowTimeSensitivityFactor;
         }
 
-        SensitivityField.SetValue(camera, newSensitivity);
+        camera._sensitivity = newSensitivity;
 
-        Log.LogDebug($"{methodName} | {nameof(_hasExtraZoom)}: {_hasExtraZoom}," +
+        LogDebug($"{methodName} | {nameof(_hasExtraZoom)}: {_hasExtraZoom}," +
             $" {nameof(_hasSlowTime)}: {_hasSlowTime}," +
             $" {nameof(_isZoomed)}: {_isZoomed}," +
             $" {nameof(_isDrawn)}: {_isDrawn}," +
@@ -349,17 +366,24 @@ public class Plugin : BaseUnityPlugin, IListenerOwner
         if (!_isZoomed && !_isDrawn)
         {
             _originalSensitivity = null;
-            Log.LogDebug("Reset sensitivity.");
+            LogDebug("Reset sensitivity.");
         }
     }
 
     public void OnDestroy()
     {
-        Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloading...");
+        LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloading...");
 
         _initialized = false;
-        HarmonyInstance?.UnpatchSelf();
 
-        Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloaded.");
+        try
+        {
+            HarmonyInstance?.UnpatchSelf();
+            LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloaded.");
+        }
+        catch (Exception ex)
+        {
+            LogError($"Plugin {PluginConsts.PLUGIN_GUID} failed to unload with error: {ex.Message}");
+        }
     }
 }
