@@ -13,7 +13,7 @@ namespace QuickArmorSets
 
         private static IEnumerable<Item> GetItems(HeroArmorSet armorSet)
         {
-            if(armorSet == null)
+            if (armorSet == null)
                 return [];
             return ArmorSlotTypes.Select(x => armorSet?.GetItem(x)).Where(x => x != null);
         }
@@ -37,7 +37,7 @@ namespace QuickArmorSets
             {
                 if (HeroItems == null)
                 {
-                    Plugin.Log?.LogError($"{nameof(VCQuickArmorSet)}.{nameof(ArmorSet)} | {nameof(HeroItems)} is null.");
+                    Plugin.LogWarning($"{nameof(VCQuickArmorSet)}.{nameof(ArmorSet)} | {nameof(HeroItems)} is null.");
                     return null;
                 }
                 return HeroItems.ArmorSetAt(Index);
@@ -86,10 +86,14 @@ namespace QuickArmorSets
 
         public override void UseItemAction()
         {
-            Plugin.Log?.LogDebug($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(UseItemAction)} | Called");
+            Plugin.LogDebug($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(UseItemAction)} | Called");
 
             if (VQuickUseWheel == null)
-                Plugin.Log?.LogError($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(UseItemAction)}  | {nameof(VQuickUseWheel)} is null.");
+            {
+                Plugin.LogWarning($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(UseItemAction)}  | {nameof(VQuickUseWheel)} is null.");
+                return;
+            }
+
             SearchForException();
             HeroItems.ActivateArmorSet(Index);
             RadialMenu.Close();
@@ -100,14 +104,14 @@ namespace QuickArmorSets
             try { HeroItems heroItems = HeroItems; }
             catch
             {
-                Plugin.Log?.LogError($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(SearchForException)} | Exception on {nameof(HeroItems)}.");
+                Plugin.LogError($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(SearchForException)} | Exception on {nameof(HeroItems)}.");
                 throw;
             }
 
             try { HeroItems.ArmorSetAt(Index); }
             catch
             {
-                Plugin.Log?.LogError($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(SearchForException)} " +
+                Plugin.LogError($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(SearchForException)} " +
                     $"Exception on {nameof(HeroItems)}.{nameof(HeroItems.ArmorSetAt)}[{Index}].");
                 throw;
             }
@@ -115,7 +119,7 @@ namespace QuickArmorSets
             try { HeroArmorSet armorSet = ArmorSet; }
             catch
             {
-                Plugin.Log?.LogError($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(SearchForException)} | Exception on {nameof(ArmorSet)}.");
+                Plugin.LogError($"{nameof(VCQuickArmorSet)}[{Index}].{nameof(SearchForException)} | Exception on {nameof(ArmorSet)}.");
                 throw;
             }
         }

@@ -9,38 +9,57 @@ namespace QuickArmorSets;
 [BepInPlugin(PluginConsts.PLUGIN_GUID, PluginConsts.PLUGIN_NAME, PluginConsts.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
-    internal static ManualLogSource Log;
+    #region Logging
+
+    private static ManualLogSource Log;
+
+    internal static void LogDebug(object data)
+    {
+#if DEBUG
+        Log?.LogInfo(data);
+#else
+        Log?.LogDebug(data);
+#endif
+    }
+
+    internal static void LogInfo(object data) => Log?.LogInfo(data);
+
+    internal static void LogWarning(object data) => Log?.LogWarning(data);
+
+    internal static void LogError(object data) => Log?.LogError(data);
+
+    #endregion
 
     public Harmony HarmonyInstance { get; set; }
 
     public void Awake()
     {
         Log = Logger;
-        Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loading...");
+        LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loading...");
 
         try
         {
             HarmonyInstance = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
-            Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loaded.");
+            LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is loaded.");
         }
         catch (Exception ex)
         {
-            Log.LogError($"Plugin {PluginConsts.PLUGIN_GUID} failed to load with error: {ex.Message}");
+            LogError($"Plugin {PluginConsts.PLUGIN_GUID} failed to load with error: {ex.Message}");
         }
     }
 
     public void OnDestroy()
     {
-        Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloading...");
+        LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloading...");
 
         try
         {
             HarmonyInstance?.UnpatchSelf();
-            Log.LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloaded.");
+            LogInfo($"Plugin {PluginConsts.PLUGIN_GUID} is unloaded.");
         }
         catch (Exception ex)
         {
-            Log.LogError($"Plugin {PluginConsts.PLUGIN_GUID} failed to unload with error: {ex.Message}");
+            LogError($"Plugin {PluginConsts.PLUGIN_GUID} failed to unload with error: {ex.Message}");
         }
     }
 }
