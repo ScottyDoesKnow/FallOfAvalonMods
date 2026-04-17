@@ -85,7 +85,7 @@ package_zip() {
     find "$tmpdir" -type f -name ".gitkeep" -delete
 
     rm -f $zip_path
-    (cd "$tmpdir" && 7za a -tzip "$zip_path" ./* | grep -i "archive")
+    (cd "$tmpdir" && 7z a -tzip "$zip_path" ./* | grep -i "archive")
     rm -rf "$tmpdir"
 }
 
