@@ -24,45 +24,45 @@ fi
 
 mkdir -p "$SCRIPT_DIR/artifacts"
 
-# Find the last released tag for the mod (tags are $modDir-$version, but modDir lowercased)
-lower_moddir=$(echo "$modDir" | tr '[:upper:]' '[:lower:]')
-
-# Get all tags for this mod, sorted by version descending
-mod_tags=($(git tag --list "${lower_moddir}-*" --sort=-v:refname))
-
-# Check if HEAD is at a release tag for this mod
-current_tag=$(git tag --points-at HEAD | grep "^${lower_moddir}-" | head -n 1)
-if [[ -z "$current_tag" ]]; then
-    echo "Error: HEAD is not a release tag for $modDir."
-    echo "       Please run the following command, and follow the instructions:"
-    echo "         ./bump-version.sh $modDir (major|minor|patch)"
-    exit 1
-fi
-
-echo "Packaging at release tag: $current_tag"
-
-if [[ ${#mod_tags[@]} -lt 2 ]]; then
-    prev_tag=""
-else
-    prev_tag="${mod_tags[1]}"
-fi
-
-echo "Previous release tag for $modDir: $prev_tag"
-
-changelog_path="$SCRIPT_DIR/artifacts/${modDir}_CHANGELOG.txt"
-
-if [[ -z "$prev_tag" ]]; then
-    echo "No previous tag for $modDir, not creating changelog."
-else
-    git log --pretty=format:"%h %s (%an, %ad)" --date=format:'%Y-%m-%d %H:%M' $prev_tag..$current_tag -- "$modDir" > "$changelog_path"
-
-    echo
-    echo "========="
-    echo "Changelog for $modDir:"
-    echo "========="
-    cat "$changelog_path"
-    echo
-fi
+## Find the last released tag for the mod (tags are $modDir-$version, but modDir lowercased)
+#lower_moddir=$(echo "$modDir" | tr '[:upper:]' '[:lower:]')
+#
+## Get all tags for this mod, sorted by version descending
+#mod_tags=($(git tag --list "${lower_moddir}-*" --sort=-v:refname))
+#
+## Check if HEAD is at a release tag for this mod
+#current_tag=$(git tag --points-at HEAD | grep "^${lower_moddir}-" | head -n 1)
+#if [[ -z "$current_tag" ]]; then
+#    echo "Error: HEAD is not a release tag for $modDir."
+#    echo "       Please run the following command, and follow the instructions:"
+#    echo "         ./bump-version.sh $modDir (major|minor|patch)"
+#    exit 1
+#fi
+#
+#echo "Packaging at release tag: $current_tag"
+#
+#if [[ ${#mod_tags[@]} -lt 2 ]]; then
+#    prev_tag=""
+#else
+#    prev_tag="${mod_tags[1]}"
+#fi
+#
+#echo "Previous release tag for $modDir: $prev_tag"
+#
+#changelog_path="$SCRIPT_DIR/artifacts/${modDir}_CHANGELOG.txt"
+#
+#if [[ -z "$prev_tag" ]]; then
+#    echo "No previous tag for $modDir, not creating changelog."
+#else
+#    git log --pretty=format:"%h %s (%an, %ad)" --date=format:'%Y-%m-%d %H:%M' $prev_tag..$current_tag -- "$modDir" > "$changelog_path"
+#
+#    echo
+#    echo "========="
+#    echo "Changelog for $modDir:"
+#    echo "========="
+#    cat "$changelog_path"
+#    echo
+#fi
 
 package_zip() {
     local zip_path="$1"
