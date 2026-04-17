@@ -39,7 +39,7 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="CopyToBepInExPlugins" AfterTargets="Build">
+  <Target Name="CopyToBepInExPlugins" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
     <ItemGroup>
       <BuiltDlls Include="$(OutputPath)$(AssemblyName).dll"/>
     </ItemGroup>
