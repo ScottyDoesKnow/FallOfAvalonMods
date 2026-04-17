@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Mod.props"/>
-  <PropertyGroup>
-    <Product>ImprovedInventory</Product>
-    <Version>2.2.0</Version>
-    <RootNamespace>ImprovedInventory</RootNamespace>
-    <PackageId>ImprovedInventory</PackageId>
-  </PropertyGroup>
-</Project>

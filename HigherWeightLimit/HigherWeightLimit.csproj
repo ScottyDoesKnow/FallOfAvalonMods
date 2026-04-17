@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Mod.props"/>
-  <PropertyGroup>
-    <AssemblyName>HigherWeightLimit</AssemblyName>
-    <Product>HigherWeightLimit</Product>
-    <Version>2.1.0</Version>
-    <RootNamespace>HigherWeightLimit</RootNamespace>
-  </PropertyGroup>
-</Project>

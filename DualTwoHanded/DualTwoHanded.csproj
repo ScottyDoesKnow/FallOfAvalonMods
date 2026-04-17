@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Mod.props"/>
-  <PropertyGroup>
-    <AssemblyName>DualTwoHanded</AssemblyName>
-    <Product>DualTwoHanded</Product>
-    <Version>1.1.1</Version>
-    <RootNamespace>DualTwoHanded</RootNamespace>
-  </PropertyGroup>
-</Project>

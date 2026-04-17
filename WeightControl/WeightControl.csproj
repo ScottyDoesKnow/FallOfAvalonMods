@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Mod.props"/>
-  <PropertyGroup>
-    <AssemblyName>WeightControl</AssemblyName>
-    <Product>WeightControl</Product>
-    <Version>2.0.0</Version>
-    <RootNamespace>WeightControl</RootNamespace>
-  </PropertyGroup>
-</Project>
